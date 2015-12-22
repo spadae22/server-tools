@@ -19,13 +19,26 @@
             <field name="model">base.action.fact</field>
             <field name="arch" type="xml">
                 <form>
+                  <group>
                     <group>
                         <field name="name" />
-                        <field name="model_id" />
-                        <field name="filter_expr" />"
-                        <field name="note" />"
-                        <field name="sequence" />"
+                        <field name="parent_id" />
+                        <field name="negate_parent" />
                     </group>
+                    <group>
+                        <field name="assign_var" />"
+                        <field name="require_var" />"
+                        <field name="sequence" />"
+                        <field name="model_id" />
+                    </group>
+                  </group>
+                  <group>
+                        <field name="filter_expr"
+                               attrs="{'required': [('negate_parent', '=', False)],
+                                       'invisible': [('negate_parent', '=', True)]}" />
+                        <field name="note" />"
+                        <field name="calc_expr" />"
+                  </group>
                 </form>
             </field>
         </record>

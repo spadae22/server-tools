@@ -28,23 +28,10 @@ from openerp.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
 
 
-class ActionRule(models.Model):
+class RuleEngine(models.Model):
     "Base Action Rule extension"
-    _inherit = 'base.action.rule'
+    _name = 'base.rule.rule'
 
-    runas_user_id = fields.Many2one(
-        'res.users', 'Run as User')
-    ruleset_id = fields.Many2one('base.action.ruleset', 'Ruleset')
-    from_fact_id = fields.Many2one(
-        'base.action.fact',
-        domain="[('model_id', 'in', (model_id, False)),"
-               " ('fact_type', '=', 'state'))]",
-        string="From State")
-    to_fact_id = fields.Many2one(
-        'base.action.fact',
-        domain="[('model_id', 'in', (model_id, False)),"
-               " ('fact_type', '=', 'state'))]",
-        string="To State")
     fact_ids = fields.Many2many(
         'base.action.fact',
         domain="[('model_id', 'in', (model_id, False)),"
