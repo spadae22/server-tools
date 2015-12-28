@@ -22,17 +22,14 @@ from openerp import models, fields
 
 
 class ActionRuleset(models.Model):
-    "Rulesets to organize Action Rules"
-    _name = 'base.action.ruleset'
+    "Rule sets to organize Rules"
+    _name = 'base.rule.set'
 
     name = fields.Char(required=True)
     model_id = fields.Many2one('ir.model', 'Preferred Model')
     enabled = fields.Boolean('Enabled?')
-    silence_errors = fields.Boolean('Silence Errors?')
-    runas_user_id = fields.Many2one('res.users', 'User')
     note = fields.Text('Description')
     rule_ids = fields.One2many(
-        'base.action.rule',
+        'base.rule.rule',
         'ruleset_id',
-        'Action Rules')
-    # TODO: Add Ruleset action logs
+        'Rules')

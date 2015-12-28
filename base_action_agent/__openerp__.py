@@ -18,7 +18,7 @@
 #
 ##############################################################################
 {
-    'name': 'Automated Agent Bots',
+    'name': 'Generic Rule Engine',
     'version': '8.0.1.0.0',
     'category': 'Tools',
     'author': 'Daniel Reis, Odoo Community Association (OCA)',
@@ -29,9 +29,8 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/action_fact_view.xml',
-        'views/action_ruleset_view.xml',
-        'views/action_rule_view.xml',
+        'views/rule_view.xml',
+        'views/ruleset_view.xml',
     ],
     'demo': [],
     'application': True,
