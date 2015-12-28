@@ -127,8 +127,8 @@ class ActionRule(models.Model):
         return True
 
     @api.multi
-    def rule_engine(self, record, operation,
-                    vals=None, old_vals=None, simulate=False):
+    def rule_engine(self, record, operation, memory=None
+                    vals=None, old_vals=None):
         """
         Filter a single Action for a list of record_ids
         It is expected to be called alongside _filter() and not inside it.

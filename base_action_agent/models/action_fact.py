@@ -37,8 +37,8 @@ class ActionFact(models.Model):
     _name = 'base.action.fact'
     _order = 'sequence'
 
-    sequence = fields.Integer(default=100, index=True)
     name = fields.Char(required=True)
+    sequence = fields.Integer(default=100, index=True)
     model_id = fields.Many2one('ir.model', 'Model')
     fact_type = fields.Selection(
         [('state', 'State'), ('cond', 'Condition')],
@@ -49,11 +49,6 @@ class ActionFact(models.Model):
         index=True,
         help="The result from this fact evaluation will be stored"
              " in this and available to other Facts.")
-    require_var = fields.Char(
-        string='Requires Variable',
-        help="Makes sure the variable is calculated by forcing the evaluation"
-             " of all Facts assigning the variable."
-             " It can be a comma separated list of variable names.")
     parent_id = fields.Many2one(
         'base.action.fact',
         'Requires')
@@ -115,12 +110,6 @@ class ActionFact(models.Model):
             # Make sure required parent fact is evaluated
             if fact.parent_id and fact.parent_id not in fact_cache:
                 fact_cache, var_memory = fact.parent_id.eval_facts(
-                    eval_ctx, fact_cache, var_memory)
-            # Make sure depending fact are evaluated
-            if fact.require_var:
-                var_list = [x.strip() for x in fact.require_var.split(',')]
-                deps = self.search([('fact_code', 'in', var_list)])
-                fact_cache, var_memory = deps.eval_facts(
                     eval_ctx, fact_cache, var_memory)
             # Evaluate trigger expression
             # Don't use the "Run As" User when evaluating these filters
