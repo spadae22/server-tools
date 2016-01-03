@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright (C) 2014-2015 Daniel Reis
+#    Copyright (C) 2015 Daniel Reis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,7 +18,7 @@
 #
 ##############################################################################
 {
-    'name': 'Generic Rule Engine',
+    'name': 'Automated Actions using Rule Engine',
     'version': '8.0.1.0.0',
     'category': 'Tools',
     'author': 'Daniel Reis, Odoo Community Association (OCA)',
@@ -26,12 +26,9 @@
     'website': 'https://github.com/server-tools',
     'depends': [
         'base_action_rule',
+        'rule_engine',
     ],
     'data': [
-        'security/ir.model.access.csv',
-        'views/ruleset.xml',
-        'views/condition.xml',
-        'views/rule.xml',
         'views/action_rule.xml',
     ],
     'demo': [],

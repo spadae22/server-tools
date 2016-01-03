@@ -82,7 +82,6 @@ class RuleEngine(models.Model):
                         record, memory, old_rec=old_rec)
                 if not result:
                     break
-            # TODO: at old or new?!
             if rule.condition_ids:
                 if rule.state_from_id and not rule.state_to_ids:
                     rec = old_rec
@@ -93,3 +92,9 @@ class RuleEngine(models.Model):
                 if not result:
                     break
         return result, memory
+
+    @api.model
+    def compute_code(self, code, record=None, memory=None, old_rec=None):
+        rule = self.search([('code', '=', code)])
+        rule.ensure_one()
+        return rule.compute(record, memory, old_rec)

@@ -1,8 +1,19 @@
 .. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
     :alt: License: AGPL-3
 
-Action Rules Extensions
-=======================
+Generic Rule Engine
+===================
+
+Provides a powerful rule engine capable to support complex workflows
+or user designed computations.
+
+It is capable to implement the features provided by the several
+varaints on finite state machines (FSM), thus providing adequate support
+for business workflows when used in conjuction with Automated Actions.
+
+The rule engine was also designed to support Production Rule systems,
+allowing for user managed business rules or to support Expert systems.
+
 
 Summary of features provided:
 
@@ -33,24 +44,45 @@ Make your OdooBot the best worker in the company!
 Rule Sets
 ---------
 
-As the number of Action Rules increases it may get confusing.
-Rulesets allow to organize the rules per topic.
+Rule Sets are a logical organization for he engine Rules.
+A Set could represent a business workflow,
+or a particular production rule system.
 
-Additionally you can assign a default User to a ruleset.
-Assign that to a bot User, and the ruleset becomes a bot playbook.
-You also have a "Enabled" flag to enable/disable the rules.
+Additionally User can be assigned to a Rule Set.
+When used with Automated Actions, this makes the Server Actions
+fired to be performed using that particular user, allowing to
+implement worker Bots.
 
 The "Silence Error?" option allows for exceptions, other than
-``raise Warning()``, to be logged only and not propagated to the user.
+``raise Warning()``, to be recorded in the server log without being
+propagated to the end user.
 This is useful for some helper Bot use cases, where we don't want
 any Bot malfunction (missing security access, for example) to disturb
 the end user.
 
 
-Facts
+Rules
 -----
 
-Facts are logic expressions to be evaluated.
+A Rule is a set of conditions to evaluate. If all conditions return
+a truthy value, the result of the Rule computation is the result
+for the last condition evaluated.
+If any of the Rule conditions is falsy, the Rule will return a False
+value.
+
+The conditions are organized into three groups:
+
+  * From State: to identify the origin State in a FSM, evaluated against
+    the "old" record values, if available.
+  * To State: to identify the destination State in a FSM.
+  * Conditions: to identify any other non-State related conditions.
+    In a FSM they identify the transition triggering conditions.
+
+
+Conditions
+----------
+
+Conditions are logic expressions to be evaluated.
 They can express state (ex: "Is Open") or events (ex: "Changed to Open").
 
 These are Python expressions, and their evaluation context has available:
@@ -59,7 +91,6 @@ These are Python expressions, and their evaluation context has available:
   * ``env``, ``context``, and ``user``
   * ``creating``, ``inserting``: True if triggered by a create operation
   * ``writing``, ``updating``: True if triggered by a write operation
-  * ``vals``: a dictionary with the original create/write values
   * ``old('<field>')``: gets the old value before the write operation
   * ``new('<field>')``: gets the new value after the create/write operation
   * ``changed('<fld1>'[,...])``: checks if the any of the fields changed value
@@ -81,13 +112,9 @@ Examples:
 Action Rules
 ------------
 
-To support rulesets and bot operators, Automated Actions
-now have a Ruleset they belong to, and a "Run As User" field
-for the user under which the actions to execute will be performed.
-If not set, the Rule will try to use the User of the parent Rule Set.
-
-A new "Condition Facts" field is available to list the Facts that should
-trigger the rule. It complements and runs after any existing domain filters.
+The Rule Engine can be made available to use with Automated Actions
+by also installing the "Automated Actions using Rule Engine" module
+(``rule_engine_action``).
 
 
 Configuration
