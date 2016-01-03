@@ -29,8 +29,10 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/rule_view.xml',
-        'views/ruleset_view.xml',
+        'views/ruleset.xml',
+        'views/condition.xml',
+        'views/rule.xml',
+        'views/action_rule.xml',
     ],
     'demo': [],
     'application': True,

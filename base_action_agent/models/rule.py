@@ -25,76 +25,35 @@ from openerp.tools.safe_eval import safe_eval
 
 class RuleEngine(models.Model):
     "Rule Engine"
-    _name = 'base.rule.rule'
+    _name = 'rule.rule'
 
     name = fields.Char(required=True)
-    active =Boolean(default=True)
+    active = fields.Boolean(default=True)
     sequence = fields.Integer(default=100, index=True)
     model_id = fields.Many2one('ir.model', 'Model')
-    ruleset_id = fields.Many2one('base.rule.set', 'Rule Set')
-    code = fields.Char(
-        'Code',
-        index=True,
-        help="The result from this rule evaluation will be stored"
-             " in this and available to other Facts.")
-    rule_ids = fields.Many2many(
-        'base.rule.rule',
-        domain="[('model_id', 'in', (model_id, False))]",
-        string='Rules')
-    rule_expr = fields.Text(
-        'Expression to Evaluate',
-        help='Python expression, able to use a "new" and "old"')
+    ruleset_id = fields.Many2one('rule.set', 'Rule Set')
+    state_from_ids = fields.Many2many(
+        'rule.condition',
+        'rule_from_rel',
+        domain="[('model_id', 'in', (model_id, False)),"
+               " ('type', '=', 'state')]",
+        string='States From')
+    state_to_ids = fields.Many2many(
+        'rule.condition',
+        'rule_to_rel',
+        domain="[('model_id', 'in', (model_id, False)),"
+               " ('type', '=', 'state')]",
+        string='States To')
+    condition_ids = fields.Many2many(
+        'rule.condition',
+        'rule_condition_rel',
+        domain="[('model_id', 'in', (model_id, False)),"
+               " ('type', '!=', 'state')]",
+        string='Transition Conditions')
     note = fields.Text('Description')
-    #fact_type = fields.Selection(
-    #    [('state', 'State'), ('cond', 'Condition')],
-    #    string='Type',
-    #    default='cond')
-
-    @api.model
-    def get_eval_context(self, new_rec=None, eval_dict=None, old_rec=None):
-        "Return an Evaluation context dict"
-        self.ensure_one()
-        new_rec = new_rec or self.model_id or self
-        writing = bool(old_rec)
-        creating = not writing
-        old = lambda f, d=None: getattr(old_rec, f, d)
-        new = lambda f, d=None: getattr(new_rec, f, d)
-        chg = lambda f: old(f) != new(f)
-        changed = lambda *ff: any(chg(f) for f in ff)
-        changed_to = lambda f: chg(f) and new(f)
-        rule = lambda c, d=None: eval_dict.get(c, d)
-        res = dict(BASE_EVAL_CTX)
-        if eval_dict:
-            res.update(eval_dict)
-        res.update({
-            'self': new_rec,  # allows object.notation
-            'obj': new_rec,
-            'env': self.env,
-            'context': self.env.context,
-            'user': self.env.user,
-            'rule': rule,
-            'old': old,
-            'new': new,
-            'changed': changed,
-            'changed_to': changed_to,
-            'creating': creating,
-            'inserting': creating,
-            'writing': writing,
-            'updating': writing})
-        return res
 
     @api.multi
-    def get_eval_contexts(self, new_recs, eval_dict=None, old_recs=None):
-        "Get list of eval contexts for the record_ids"
-        self.ensure_one()
-        if not old_recs:
-            old_recs = dict()
-        res = [self.get_eval_context(x, eval_dict, old_recs.get(x.id))
-               for x in new_recs]
-        return res
-
-    @api.multi
-    def compute_rules(self, record=None, memory=None, old_rec=None):
+    def compute(self, record=None, memory=None, old_rec=None):
         """
         Rule engine used to process the rules.
         Rules dependended on will be previously processed.
@@ -108,29 +67,29 @@ class RuleEngine(models.Model):
         Returns:
             the memory dictionary, updated with the computed rules
         """
-        memory = memory or {}
         is_enabled = lambda a: (
                 a.active and (not a.recordset_id or a.recordset_id.enabled))
-        for rule in rules:
-            # Do not reevaluate facts
-            if rule in memory or not is_enabled(rule):
-                pass
-            memory = rule.rule_ids.compute_rules(record, memory, old_rec)
-            if not rule_expr:
-                pass
-            eval_ctx = rule.get_eval_context(record, memory, old_rec)
-            result = safe_eval(rule.rule_expr, eval_ctx)
-            memory[rule] = result
-            if rule.code:
-                memory[rule.code] = result
-        return memory
-
-    @api.multi
-    @api.constrains('rule_expr')
-    def _check_rule_expr(self):
-        try:
-            rule.compute_rules()
-        except:
-            raise exceptions.ValidationError(
-                '%s: Invalid evaluated expression «%s»'
-                % (rule.name, rule.rule_expr))
+        result, memory = True, memory or {}
+        memory_old = dict(memory)
+        for rule in self.filtered(is_enabled):
+            if rule.state_from_ids:
+                result, memory_old = rule.state_from_ids.compute(
+                        old_rec, memory_old, new_rec=record)
+                if not result:
+                    break
+            if rule.state_to_ids:
+                result, memory = rule.state_to_ids.compute(
+                        record, memory, old_rec=old_rec)
+                if not result:
+                    break
+            # TODO: at old or new?!
+            if rule.condition_ids:
+                if rule.state_from_id and not rule.state_to_ids:
+                    rec = old_rec
+                else:
+                    rec = record
+                result, memory = rule.condition_ids.compute(
+                        rec, memory, record, old_rec)
+                if not result:
+                    break
+        return result, memory

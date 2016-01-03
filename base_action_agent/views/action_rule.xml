@@ -4,8 +4,8 @@
         <!-- TODO: Automated Actions default filter excluding rules ib rulesets -->
         <!-- Action Rule Form View -->
         <record id="view_base_action_rule_form" model="ir.ui.view">
-            <field name="name">base.rule.rule.form</field>
-            <field name="model">base.rule.rule</field>
+            <field name="name">base.action.rule.form</field>
+            <field name="model">base.action.rule</field>
             <field name="inherit_id" ref="base_action_rule.view_base_action_rule_form"/>
             <field name="arch" type="xml">
 
@@ -13,9 +13,8 @@
                     <field name="ruleset_id" />
                 </field>
                 <field name="filter_id" position="after">
-                    <field name="fact_ids" widget="many2many_tags"
+                    <field name="rule_ids" widget="many2many_tags"
                            context="{'default_model_id': model_id}" />
-                    <field name="filter_expr" />
                 </field>
 
             </field>
@@ -31,7 +30,7 @@
                     <field name="ruleset_id" />
                 </field>
                 <field name="filter_id" position="after">
-                    <field name="fact_ids" widget="many2many_tags" />
+                    <field name="rule_ids" widget="many2many_tags" />
                 </field>
 
             </field>

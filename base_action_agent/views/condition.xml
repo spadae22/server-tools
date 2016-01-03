@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="open_action_condition" model="ir.actions.act_window">
+            <field name="name">Rule Conditions</field>
+            <field name="res_model">rule.condition</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_action_condition"
+                  name="Rule Conditions"
+                  sequence="25"
+                  parent="base.menu_automation"
+                  action="open_action_condition" />
+
+        <record id="view_action_condition_form" model="ir.ui.view">
+            <field name="name">rule.condition.form</field>
+            <field name="model">rule.condition</field>
+            <field name="arch" type="xml">
+                <form>
+                  <group>
+                    <group>
+                        <field name="name" />
+                        <field name="code" />
+                        <field name="condition_type" />
+                    </group>
+                    <group>
+                        <field name="active" />"
+                        <field name="sequence" />"
+                        <field name="model_id" />
+                    </group>
+                  </group>
+                  <group>
+                      <field name="parent_ids" />
+                      <field name="condition_expr" />
+                      <field name="note" />"
+                  </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_action_condition_tree" model="ir.ui.view">
+            <field name="name">rule.condition.tree</field>
+            <field name="model">rule.condition</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="sequence" />
+                    <field name="name" />
+                    <field name="model_id" />
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</openerp>
